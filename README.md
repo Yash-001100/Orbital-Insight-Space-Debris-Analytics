@@ -1,8 +1,42 @@
-# Orbital Insight Satellite & Space Debris Analytics System
+# Orbital Insight: Satellite & Space Debris Analytics
 
-Orbital Insight is a compact data analytics and web application project for exploring satellite and space debris congestion. It follows the assignment flow from the PDF: real data collection, data cleaning, SQL storage, analysis, REST APIs, and an interactive dashboard.
+Orbital Insight is a live satellite and space debris analytics web application built with real CelesTrak SATCAT data. It analyzes orbital congestion, satellite distribution, debris density, launch growth trends, and collision-risk indicators through an interactive Flask dashboard, REST APIs, SQL-backed data storage, Power BI-ready exports, and an animated Earth globe visualization.
 
-## Real Dataset Source
+## Live Demo
+
+```text
+https://orbital-insight-space-debris-analytics-1.onrender.com/
+```
+
+The app is deployed on Render. On the free tier, the first load may take a little longer if the service has been sleeping.
+
+## Project Highlights
+
+- 68,000+ raw CelesTrak SATCAT records collected
+- 33,000+ current Earth-orbiting objects analyzed
+- 18,000+ satellites identified
+- Python data pipeline for cleaning, standardization, risk scoring, and export
+- SQLite database layer for SQL-backed analytics
+- Flask REST API for dashboard data access
+- Interactive web dashboard with filters, search, charts, and live data refresh
+- Animated globe using a NASA Blue Marble Earth texture and representative satellite orbit points
+- Power BI-ready dataset export for business intelligence dashboarding
+- Render deployment for public access
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Data source | CelesTrak SATCAT |
+| Data processing | Python, pandas |
+| Database | SQLite |
+| Backend | Flask, Gunicorn |
+| Frontend | HTML, CSS, JavaScript, Canvas |
+| Visualization | Custom web charts, interactive globe, Power BI export |
+| Deployment | Render |
+| Container support | Docker |
+
+## Dataset
 
 This project uses the real CelesTrak SATCAT catalog:
 
@@ -10,118 +44,43 @@ This project uses the real CelesTrak SATCAT catalog:
 https://celestrak.org/pub/satcat.csv
 ```
 
-CelesTrak documents the SATCAT CSV fields here:
+CelesTrak SATCAT format documentation:
 
 ```text
 https://celestrak.org/satcat/satcat-format.php
 ```
 
-The downloaded file is stored locally at:
+The downloaded data is stored locally at:
 
 ```text
 data/raw/celestrak_satcat.csv
 ```
 
-The copy downloaded for this project contains more than 68,000 catalog records. The dashboard filters this to current Earth-orbiting objects using `ORBIT_CENTER = EA` and `ORBIT_TYPE = ORB`, which keeps the analysis focused on orbital congestion rather than objects that have already decayed or impacted.
-
-## What is included
-
-- Python preprocessing with `pandas`
-- SQLite database storage for the SQL layer
-- Flask REST API endpoints
-- Interactive browser dashboard with filters, chart selector, search, and live CelesTrak refresh
-- Interactive animated globe showing representative satellite orbits from real SATCAT records
-- Local NASA Blue Marble Earth texture for realistic continents on the globe
-- Power BI-ready export at `data/processed/powerbi_orbital_dataset.csv`
-
-## Run the project
-
-```powershell
-python -m pip install -r requirements.txt
-python src\download_data.py
-python src\pipeline.py
-python app.py
-```
-
-Open:
+The dashboard filters the catalog to current Earth-orbiting objects using:
 
 ```text
-http://127.0.0.1:5000
+ORBIT_CENTER = EA
+ORBIT_TYPE = ORB
 ```
 
-## Run with HTTPS locally
+This keeps the analysis focused on orbital congestion rather than objects that have already decayed, landed, or impacted.
 
-For a local demo, enable Flask's self-signed HTTPS certificate:
+## Features
 
-```powershell
-$env:ORBITAL_HTTPS="1"
-python app.py
-```
+- Dashboard KPI cards for total objects, satellites, debris, and average risk
+- Orbit distribution analysis for LEO, MEO, GEO, and HEO
+- Object category mix for satellites, debris, rocket bodies, and unknown objects
+- Country/owner insights
+- Growth trends over time
+- Risk-zone analysis by orbit shell and inclination band
+- Searchable highest-risk object table
+- Interactive filters for orbit type, object category, risk level, status, and country/owner
+- Live CelesTrak refresh button
+- Interactive Earth globe with drag-to-rotate, zoom, hover tooltips, and representative satellite points
 
-## Deploy As A Public Web App
+## Interactive Globe Note
 
-This project is a Flask web application, so the easiest public hosting path is a Docker-based Hugging Face Space, Render, Railway, or similar Python web host.
-
-For Render, use:
-
-```text
-Build Command: pip install -r requirements.txt
-Start Command: gunicorn app:app
-Environment variables:
-PYTHON_VERSION=3.11.11
-ORBITAL_HOST=0.0.0.0
-```
-
-For Hugging Face Spaces, choose:
-
-```text
-SDK: Docker
-Port: 7860
-```
-
-The included `Dockerfile` runs the Flask dashboard on `0.0.0.0:7860`, which is the default port used by many Space examples. A native Gradio rebuild is possible, but it is not recommended because this app already uses custom Flask routes, JavaScript charts, and an interactive globe.
-
-Open:
-
-```text
-https://127.0.0.1:5000
-```
-
-Your browser will show a privacy warning because the certificate is self-signed. For a college demo, choose the advanced option and continue to localhost. For a public deployment, use a trusted HTTPS certificate through a hosting platform, Nginx/Caddy, Cloudflare Tunnel, or ngrok.
-
-Optional host and port settings:
-
-```powershell
-$env:ORBITAL_HOST="127.0.0.1"
-$env:ORBITAL_PORT="5443"
-$env:ORBITAL_HTTPS="1"
-python app.py
-```
-
-## API endpoints
-
-- `/satellites` - satellite records
-- `/debris` - debris and rocket body records
-- `/orbit-stats` - orbit distribution summary
-- `/risk-analysis` - high-risk orbital zones
-- `/api/dashboard-data` - filtered dashboard data for interactive charts
-- `/api/globe-data` - filtered satellite records and orbit counts for the interactive globe
-- `/api/options` - filter options for orbit, object type, risk, status, and country
-- `/api/refresh-live-data` - downloads the latest CelesTrak SATCAT CSV and rebuilds the database
-- `/api/country-stats` - satellite count by country
-- `/api/growth-trends` - object growth over time
-- `/api/summary` - dashboard KPI summary
-
-## Interactive dashboard features
-
-- Refresh live CelesTrak SATCAT data from the dashboard
-- Filter by orbit type, object category, risk level, operational status, and country/owner
-- Search by object name, NORAD catalog ID, or international designator
-- Switch the main visualization between orbit distribution, category mix, country/owner ranking, risk zones, launch growth, altitude bands, and operational status
-- Drag and zoom the animated globe to explore representative satellites around Earth
-- View filtered highest-risk orbital zones and object records
-
-Note: the globe uses real CelesTrak SATCAT satellite counts, altitude, inclination, orbit type, ownership, and status. SATCAT does not provide live latitude/longitude positions, so the moving points are representative orbital positions rather than exact real-time tracking.
+The globe uses real CelesTrak SATCAT satellite records, including altitude, inclination, orbit type, ownership, and operational status. SATCAT does not provide live latitude/longitude positions, so the moving satellite points are representative orbital positions rather than exact real-time satellite tracking.
 
 Earth texture source:
 
@@ -130,21 +89,21 @@ NASA Blue Marble / Visible Earth texture via Wikimedia Commons
 https://commons.wikimedia.org/wiki/File:Land_shallow_topo_2048.jpg
 ```
 
-## Data preprocessing
+## Data Pipeline
 
-The pipeline performs these steps:
+The pipeline in `src/pipeline.py` performs the following steps:
 
-1. Downloads or loads `data/raw/celestrak_satcat.csv`
+1. Downloads or loads the CelesTrak SATCAT CSV
 2. Removes duplicate NORAD catalog IDs
 3. Filters to current Earth-orbiting catalog records
 4. Standardizes owner, status, category, and orbit fields
 5. Converts launch dates, period, inclination, apogee, perigee, and radar cross section
 6. Categorizes objects as Satellite, Debris, Rocket Body, or Unknown
 7. Classifies orbit shells as LEO, MEO, GEO, HEO, or Unknown
-8. Calculates risk scores from orbit type, density, object category, altitude, inclination, estimated object size, and operational status
-9. Writes SQL tables and Power BI export files
+8. Calculates risk scores from orbit type, density, object category, altitude, inclination, estimated size, and operational status
+9. Writes SQLite tables and a Power BI-ready CSV export
 
-## Database design
+## Database
 
 The generated SQLite database is stored at:
 
@@ -163,22 +122,90 @@ Main tables:
 - `growth_trends`
 - `risk_zones`
 
-## Suggested presentation structure
+## API Endpoints
 
-1. Problem: Earth orbit is increasingly congested by active satellites, inactive spacecraft, rocket bodies, and debris fragments.
-2. Objective: identify crowded orbit regions, debris patterns, country-level satellite distribution, and high-risk zones.
-3. Dataset: real CelesTrak SATCAT CSV with cataloged satellites, debris, rocket bodies, ownership, launch date, orbital period, inclination, apogee, perigee, and radar cross section.
-4. Method: clean CelesTrak data with Python, store it in SQL, analyze grouped summaries, expose results through REST APIs, and visualize in a web dashboard.
-5. Key output: identify high-density LEO/MEO/GEO/HEO zones and compare satellite ownership and debris risk.
-6. Future work: add live GP/TLE orbit propagation, Space-Track login integration, and ML-based collision probability scoring.
+| Endpoint | Description |
+|---|---|
+| `/api/summary` | KPI summary data |
+| `/api/dashboard-data` | Filtered dashboard data |
+| `/api/globe-data` | Satellite records and orbit counts for the globe |
+| `/api/options` | Filter dropdown options |
+| `/api/refresh-live-data` | Refreshes CelesTrak data and rebuilds the database |
+| `/satellites` | Satellite records |
+| `/debris` | Debris and rocket body records |
+| `/orbit-stats` | Orbit distribution summary |
+| `/risk-analysis` | High-risk orbital zones |
+| `/api/country-stats` | Country/owner statistics |
+| `/api/growth-trends` | Launch growth trends |
 
-## Refreshing the real data
-
-Run:
+## Run Locally
 
 ```powershell
+python -m pip install -r requirements.txt
 python src\download_data.py
 python src\pipeline.py
+python app.py
 ```
 
-The database, API responses, dashboard, and Power BI export will refresh automatically.
+Open:
+
+```text
+http://127.0.0.1:5000
+```
+
+## Render Deployment
+
+The project is configured for Render deployment.
+
+Recommended Render settings:
+
+```text
+Build Command: pip install -r requirements.txt
+Start Command: gunicorn app:app
+Environment variables:
+PYTHON_VERSION=3.11.11
+ORBITAL_HOST=0.0.0.0
+```
+
+The included `render.yaml` also defines these deployment settings.
+
+## Power BI Export
+
+The cleaned Power BI-ready dataset is generated at:
+
+```text
+data/processed/powerbi_orbital_dataset.csv
+```
+
+It can be imported into Power BI to build KPI cards, orbit distribution charts, object category visuals, country/owner analysis, launch growth trends, and high-risk object tables.
+
+## Limitations
+
+- SATCAT is a catalog dataset, not a real-time position feed.
+- The interactive globe shows representative orbital positions, not exact live satellite coordinates.
+- Risk scoring is heuristic and intended for analytics demonstration, not operational collision prediction.
+- Render free tier may sleep after inactivity, causing slower first loads.
+
+## Future Enhancements
+
+- TLE/GP orbit propagation for real-time satellite positions
+- Space-Track integration for richer object metadata
+- Machine learning models for collision-risk estimation
+- More detailed 3D globe rendering with Three.js
+- Historical debris growth forecasting
+
+## Acknowledgements
+
+- CelesTrak for public SATCAT satellite catalog data
+- NASA Visible Earth / Blue Marble imagery
+- Wikimedia Commons for hosting the Earth texture asset
+- Render for public web deployment
+- Power BI for dashboarding and business intelligence visualization
+
+## Contact
+
+For questions, feedback, or collaboration:
+
+```text
+kalrayashpreet@gmail.com
+```
