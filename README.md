@@ -62,6 +62,16 @@ python app.py
 
 This project is a Flask web application, so the easiest public hosting path is a Docker-based Hugging Face Space, Render, Railway, or similar Python web host.
 
+For Render, use:
+
+```text
+Build Command: pip install -r requirements.txt
+Start Command: gunicorn app:app
+Environment variables:
+PYTHON_VERSION=3.11.11
+ORBITAL_HOST=0.0.0.0
+```
+
 For Hugging Face Spaces, choose:
 
 ```text
