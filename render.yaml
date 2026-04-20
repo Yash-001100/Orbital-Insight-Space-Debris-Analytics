@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: orbital-insight
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: ORBITAL_HOST
+        value: 0.0.0.0

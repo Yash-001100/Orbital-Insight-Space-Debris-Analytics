@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Orbital Insight</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Satellite Orbit & Space Debris Analysis</p>
+        <h1>Orbital Insight</h1>
+        <p class="lead">Track congestion, debris growth, and collision-risk zones across Earth orbit.</p>
+      </div>
+      <img
+        class="orbital-photo"
+        src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1000&q=80"
+        alt="Earth viewed from orbit"
+      >
+    </header>
+
+    <main>
+      <section class="metrics" aria-label="Key orbital metrics">
+        <article class="metric">
+          <span>Total objects</span>
+          <strong id="totalObjects">--</strong>
+        </article>
+        <article class="metric">
+          <span>Satellites</span>
+          <strong id="satelliteCount">--</strong>
+        </article>
+        <article class="metric">
+          <span>Debris and rocket bodies</span>
+          <strong id="debrisCount">--</strong>
+        </article>
+        <article class="metric">
+          <span>Average risk</span>
+          <strong id="averageRisk">--</strong>
+        </article>
+      </section>
+
+      <section class="source-note" aria-label="Dataset source">
+        <strong id="datasetName">Dataset loading</strong>
+        <span id="datasetDetails">Real CelesTrak SATCAT data powers this dashboard.</span>
+        <button id="refreshData" class="action-button" type="button">Refresh live CelesTrak data</button>
+        <span id="refreshStatus" class="refresh-status" aria-live="polite"></span>
+      </section>
+
+      <section class="controls" aria-label="Dashboard controls">
+        <label>
+          Visualization
+          <select id="visualizationSelect">
+            <option value="orbit">Orbit distribution</option>
+            <option value="category">Object category mix</option>
+            <option value="country">Top owners / countries</option>
+            <option value="risk">Risk zones</option>
+            <option value="growth">Launch growth trend</option>
+            <option value="altitude">Altitude bands</option>
+            <option value="status">Operational status</option>
+          </select>
+        </label>
+
+        <label>
+          Orbit
+          <select id="orbitFilter">
+            <option value="All">All orbits</option>
+          </select>
+        </label>
+
+        <label>
+          Object type
+          <select id="categoryFilter">
+            <option value="All">All object types</option>
+          </select>
+        </label>
+
+        <label>
+          Risk
+          <select id="riskFilter">
+            <option value="All">All risk levels</option>
+          </select>
+        </label>
+
+        <label>
+          Status
+          <select id="statusFilter">
+            <option value="All">All statuses</option>
+          </select>
+        </label>
+
+        <label>
+          Country / owner
+          <select id="countryFilter">
+            <option value="All">All countries</option>
+          </select>
+        </label>
+
+        <label class="search-control">
+          Search object
+          <input id="searchInput" type="search" placeholder="Name, NORAD ID, designator">
+        </label>
+
+        <button id="resetFilters" class="ghost-button" type="button">Reset filters</button>
+      </section>
+
+      <section class="globe-section" aria-label="Interactive satellite globe">
+        <div class="globe-copy">
+          <p class="eyebrow">Interactive Globe</p>
+          <h2>Satellites Around Earth</h2>
+          <p>
+            Drag to rotate, scroll to zoom, and use the dashboard filters to update the satellite view.
+          </p>
+          <div class="globe-stats">
+            <article>
+              <span>Satellites in Earth orbit</span>
+              <strong id="globeSatelliteCount">--</strong>
+            </article>
+            <article>
+              <span>Active satellites</span>
+              <strong id="globeActiveCount">--</strong>
+            </article>
+            <article>
+              <span>Average altitude</span>
+              <strong id="globeAltitude">--</strong>
+            </article>
+          </div>
+          <div id="globeLegend" class="globe-legend"></div>
+          <p class="globe-note" id="globeNote">
+            SATCAT gives orbital attributes, not live positions, so points are animated representative locations.
+          </p>
+        </div>
+        <div class="globe-visual">
+          <canvas id="satelliteGlobe" width="900" height="560"></canvas>
+          <div id="globeTooltip" class="globe-tooltip" hidden></div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel large">
+          <div class="panel-heading">
+            <div>
+              <p id="primaryEyebrow" class="eyebrow">Visualization</p>
+              <h2 id="primaryTitle">Objects by orbit type</h2>
+            </div>
+          </div>
+          <canvas id="primaryChart" width="760" height="380"></canvas>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Country Insights</p>
+              <h2>Top owners</h2>
+            </div>
+          </div>
+          <canvas id="countryChart" width="520" height="360"></canvas>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Growth Trend</p>
+              <h2>Cumulative launches</h2>
+            </div>
+          </div>
+          <canvas id="growthChart" width="520" height="360"></canvas>
+        </article>
+
+        <article class="panel large">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Risk Analysis</p>
+              <h2>Filtered high-risk zones</h2>
+            </div>
+            <strong id="topRiskZone" class="risk-chip">--</strong>
+          </div>
+          <div id="riskList" class="risk-list"></div>
+        </article>
+      </section>
+
+      <section class="data-table">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Object Registry</p>
+            <h2>Filtered highest-risk objects</h2>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Orbit</th>
+                <th>Country</th>
+                <th>Altitude</th>
+                <th>Risk</th>
+              </tr>
+            </thead>
+            <tbody id="objectTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
